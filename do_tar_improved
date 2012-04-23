@@ -1,0 +1,78 @@
+#!/bin/csh -f
+##########################################################################
+#### This script creates the tar file for the distribution
+##########################################################################
+###### 
+
+## get the version number in the hat() routine
+set ver=$1
+
+## recompile the code
+tmake $ver
+make
+
+set list_files = ( *.f90 Makefile README do_tar_improved tmake build.hat )
+
+## ask if this is for a user or myself
+
+echo '======= Choose the type of the archive for version ' $ver ': ======='
+echo '     1. user archive (smaller)'
+echo '     2. my archive (complete)'
+echo '     Q. quit - do nothing'
+set type=($<)
+if ( $type == 1 ) then
+   echo '...... OK: archive for a general user (smaller) ........'
+   set list_dir = ( )
+   echo $list_dir
+else if  ( $type == 2 ) then
+   echo '...... OK: archive for myself (complete) ........'
+   set list_dir = ( MgO_ si-bulk Fe_Sb_O Dimer Avan-example DOS vasp_5.2a vasp5.2 Si_bulk_DOS_siesta Si_bulk_PDOS_siesta PDOS_vasp graphene_siesta graphene_vasp_PDOS )
+   echo $list_dir
+else if  ( $type == Q ) then
+   exit
+endif
+
+#################################################################
+
+echo making tar file for lev00 ...
+echo -n mkdir lev00_$ver .......
+        mkdir lev00_$ver
+echo "done\!"
+
+foreach files ( $list_files )
+   echo -n cp $files lev00_$ver/. .......
+           cp $files lev00_$ver/.
+echo "done\!"
+end
+if ( $type == 2 ) then
+   echo -n cp compile  lev00_$ver/.
+           cp compile  lev00_$ver/.
+endif
+echo "done\!"
+
+foreach dir ( $list_dir )
+    echo '========> doing directory ' $dir ' now <========'
+    echo -n tar -czf $dir.tgz $dir .......
+            tar -czf $dir.tgz $dir
+    echo "done\!"
+    echo -n mv $dir.tgz lev00_$ver/.  .......
+            mv $dir.tgz lev00_$ver/
+    echo "done\!"
+    cd lev00_$ver
+    echo -n  tar -xzf $dir.tgz  .......
+             tar -xzf $dir.tgz 
+    /bin/rm $dir.tgz 
+    cd ..
+    echo "done\!"
+end
+
+#################################################################
+
+echo '========> Doing the final archive <========='
+echo -n tar -czf lev00_$ver.tgz lev00_$ver .......
+        tar -czf lev00_$ver.tgz lev00_$ver
+if ( $type == 1 ) mv  lev00_$ver.tgz lev00_$ver-forusers.tgz 
+/bin/rm -rf  lev00_$ver
+echo "Done\!"
+
+

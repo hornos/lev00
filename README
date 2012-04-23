@@ -1,0 +1,542 @@
+lev00
+^^^^^
+
+19.09.2003  Version 2.0 
+^^^^^^^^^^^^^^^^^^^^^^^
+
+(1) some small bugs corrected.
+
+(2) Added support for SIESTA (with some help from Adam Foster):
+
+- lev00 can now fully support charge and spin density options
+- due to a problem in setting users k-points to SIESTA, there
+  is still no support for DOS and PDOS.
+
+To compile lev00, you need param.inc file. The get one, run
+
+get_param_siesta
+
+(which is in TOOLS/SIESTA_Tools and should be compiled only once). It
+will read the final geometry file *.XV and the density file *.RHO to
+construct param.inc file. Then, as usual, run lev00.comp to get lev00
+in your working directory.
+
+22.01.2004 Version 2.1
+^^^^^^^^^^^^^^^^^^^^^^^
+
+(1) do_param.f: do_param writes ISPIN variable to the param.inc file.
+
+(2) lev00 (several files): spin 1,2 for spin-polarised calculations 
+    is recognised by lev00 when doing various DOS; no need now to
+    copy band.out.1 (or .2) into band.out for each spin; when going
+    into any of the DOS options, lev00 asks which spin if ISPIN=2.
+    In the case of a spin-polarised calculation any DOS is without
+    the spin prefactor of 2.
+
+(3) lev00.f: structure of the main routine has been simplified considerably
+    and is now more transparent; some CASTEP/CETEP options are not visible
+    if VASP or SIESTA are on and vice versa.
+
+(4) when searching for a string consisting of 2 or 3 words, the string
+    is broken down into words; this means that number of spaces
+    between the words does not matter anymore. This is useful if
+    e.g. the number of spaces was changed in the output file of the PW code
+    which lev00 needs (as e.g. happenned between versions 4.4. and 4.6
+    of vasp)  
+
+1.02.2004 Version 2.2
+^^^^^^^^^^^^^^^^^^^^^^
+
+(1) a bug in lev00.f: a call to prep_plot() in potion MAP was missing
+(2) added option 44 in the plane menu: after the plane is chosen
+(i.e. the normal, central point and the dimensions), one can choose
+another plane parallel to the existing one. Note that if the plane was
+chosen using 3 points methos, you will have to choose the same plane again by
+specifying the normal only (it is diplayed in the menu), so that the
+3-point  method becomes off.
+
+
+30.3.2004 - 15.04.2004  Version 2.3
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(1) a bug in density.f related to reading density of siesta (thanks to Ross)
+
+(2) a bug in input00.f in setting up the first k-point while reading
+siesta input (actually, is not used)
+
+(3) menus in plot_add.f, simulate.f and density.f changed: 
+ - to allow character inputs instead of only numbers; 
+ - 'An' to choose the way coordinates are given; 
+ - 'Co' is added in all menus options related to density to view atomic
+   positions in fractional/Cartesian format
+ - 'Q' is used to quit 
+This all is in accord with the general implementation of menus in tetr.
+Still, other menus will have to be modified accordingly - later!
+
+(4) atomic species are now asked every time lev00 is started and the
+coordinates are read in
+(changes in: lev00.f, lev00.inc, mendeleev.inc, input00.f)
+
+(5) density reading routines (vasp, siesta) have been moved from density.f
+to a separate file read_density.f
+
+(6) a bug in a routine reading siesta density has been corrected; it
+affected only the units of the density array grid()
+(the file affected: read_density.f)
+
+(7) insignificant changes in density.f 
+
+(8) A MAJOR NEW DEVELOPMENT: a new option added in the density menu (#10) 
+allowing to write input files to gOpenMol to plot "orbitals" out of the 
+density; two files are produced (both are needed): 
+
+ - gOpenMol.cube containing the density and atomic positions in the
+specific format; all atomic positions are printed (they are not actually used 
+by gOpenMol which is a bit of a puzzle); the density is printed on a grid
+within a box (the density box) to be specified; the box may run across 
+several cells or overlap with several adjacent cells, etc.
+
+ - gOpenMol.xyz which contains atomic positions (again!); two options
+   are available (the XY option in the menu):
+      - all cell atoms
+      - only atoms within the density box (a larger box can also be chosen
+        using the option 3 in the menu; the latter appears if the appropriate
+         XY menu option has been chosen)
+
+Files affected: density.f
+
+What you need to do with gOpenMol:
+ - read the gOpenMol.xyz file by going to: 
+        File -> Import -> Coord -> Browse -> Apply
+ - read in the gOpenMol.cube file by going to:
+        Run -> gCube2plt/g94cub2pl (cube) -> Browse -> Apply
+   which should produce an output in the window to be openned finished by 
+   "Job done ..."; it produces a file gOpenMol.plt
+ - then plot by reading the gOpenMol.plt:
+        Plot -> Contour -> Browse -> Import File 
+You will find the min and max values of the density; choose the density value
+in the boxes underneath the min/max info and click Apply: the density will be
+shown alongside the atomic positions in the same window; you will be able to 
+rotate the image.
+
+To make the density transparent, click on Details opposite to the chosen 
+density level and change the Opacity level, then click Apply. It is possible 
+to plot several density levels in the same way by filling in several density
+levels and then changing their opacities.
+
+To see atoms better, use: 
+        View -> Atom Type 
+and then the option Licorice with e.g. Cyl.rad = 0.1 and Sph. rad. = 0.3.
+To have different radii for different species, use CPK as well.
+See the gOpenMol manual for more instructions.
+gOpenMol is freely available at: http://www.csc.fi/gopenmol/
+
+
+8.10.2004  Version 2.4
+^^^^^^^^^^^^^^^^^^^^^^
+1. cosmetic changes in get_all_from_SIESTA  (au_A,A_au)
+   (file: input00.f)
+2. similar cosmatic changes in siesta_dens 
+   (file: read_density.f)
+3. multiplication factor for the density used in line/plane options (multcon) 
+   has been changed from 100 to 1, since the density is given in actual units
+   (A^-3) 
+   (files: menu.f, plot_add.f)
+4. an option [Ap] is added to the plane menu to show (X,Y) positions of all atoms
+   with respect to the local coordinate system fixed with the plane including
+   the out-of-plane distance
+   (files: density.f, plot_add.f)
+5. the title line in the CONTCAR file is also printed on the screen for
+   convenience to have the order of species 
+   (file: input00.f)
+
+24.11.2004  Version 2.41
+^^^^^^^^^^^^^^^^^^^^^^^^
+1. some minor changes to comply with Intel fortran-90 compiler
+   [files: almost all]
+2. make00.lev changed
+3. new file tools_strings.f created that contains all the strings routines. A trick 
+   in those to port an variable lenths string has been removed to comply with fortran
+   rules.
+   [file: inpu00.f]
+4. PROCAR file with projected DOS is now working with option LORBIT=11 of VASP. Still, 
+   only total p and d contributions are worked out by lev00, although all components of
+   those are available in PROCAR. Can easily be taken into account as well, but later.
+   [file: input00.f]
+
+10.1.2005 Version 2.42
+^^^^^^^^^^^^^^^^^^^^^^
+
+1. another format for reading k-points from the OUTCAR file implemented as the
+one existed before did not seem to appear in the OUTCAR file  in some cases
+   [file: input00.f]
+
+
+19.1.2005 Version 2.43
+^^^^^^^^^^^^^^^^^^^^^^
+
+1. can read unformatted siesta RHO (electron/spin density) files as well; detects 
+   automatically if the file is formatted or unformatted. [Note: may not work
+   if the unformatted RHO file was produced on another platform.]
+   [files: read_density.f, SIESTA_Tools/get_param_siesta.f]
+2. a debugging printout removed from vasp_dens() routine.
+   [file: read_density.f]
+
+2.2.2005 Version 2.44
+^^^^^^^^^^^^^^^^^^^^^
+
+1. Makefile make00.lev updated.
+2. XY option in gOpenMol menu of the dnesity menu: default changed to keeping
+   atoms inside the box.
+   [file: density.f]
+3. a bug in for_gOpenMol() routine (wrong calculation of center()) corrected.
+   [file: density.f]
+4. a very subtle bug (thanks to Chris!) in for_gOpenMol() routine, that
+   resulted in a shift of the countour surfaces with respect to the geometry, 
+   corrected.
+   [file: density.f]
+
+24.7.2005 Version 2.45
+^^^^^^^^^^^^^^^^^^^^^^
+
+1. the main menu corrected
+   [file: lev00.f]]
+2. English in several menus and some unimportant bugs (in calling plot() routine)
+   [file: menu.f, prep_dos.f, prep_disp.f, plot_add.f, lev_coulomb,f, dipole.f]
+3. several little bugs in the plane menu (affected only the menu look) fixed
+   [file: plot_add.f]
+4. some cosmetic changes in charge, dipole and quadrupole routines menus
+   [files: dipole.f, plot_add.f]
+5. a tiny uninportant bug in calling Plot_Explr() routine fixed
+   [file: plot_add.f]
+6. option 7 of the density menu is linked to CASTEP only
+   [file: density.f]
+7. removed 'island' message (given if option 4 of the main menu) for VASP and
+   SIESTA
+   [file: input00.f]
+8. option 4 of the main menu is directly linked to CASTEP/CETEP only; in the
+   case of VASP, the file name is asked (CHGCAR, PARCHG or LOCPOT) before
+   reading in
+   [file: lev00.f, density.f, input00.f]
+9. manipulation option rewritten from scratch; includes SIESTA as well this time
+   [files: lev00.f, manip_dens.f, density.f, read_density.f, make00.lev, tools_strings.f]
+10. option 4 -> 4  removed (writing partial density)
+   [file: prep_pl0.f]
+11. option 8 of the main menu (shift density) was moved to the density menu as
+   option 12, which allowed to generalise it for any code
+   [files: lev00.f, density.f, make00.lev]
+   [file removed: shift_charge.f]
+
+7.01.2007 Version 2.46
+^^^^^^^^^^^^^^^^^^^^^^^
+
+1. NEW: get_pram_siesta has been modified to read in NBANDS and NKPTS from siesta DOS run 
+   (if the new option BandPoints in on), as well as band energies into band.out file,  
+   to allow for DOS support in lev00
+   [file: get_param_siesta.f]
+2. NEW: corresponding changes have been done in lev00 routines as well to support total DOS
+   calculation with siesta: presently supported menu options 0 and 3 of DOS (smearing 
+   tests and total DOS)
+   [files: input00.f, lev00.f]
+3. character*(*) construction introduced in all routines to handle variable string lengths
+   [files: tools_strings.f, density.f, dipole.f, input00.f, lev00.f, manip_dens.f, 
+           plot_add.f, simulate.f] 
+4. NEW: it is possible to set the upper limit to the energy (x axis) when previewing and
+   of the DOS graphs with gnuplot
+   [files: prep_dos.f, prep_disp.f, plot_add.f]
+5. an old bug in working out physical bands, when the smearing is on, fixed
+   [file: dos_add.f]
+
+10.02.2007 Version 2.46.1
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Bug fixes in reading unformatted siesta density
+   [files: manip_dens.f, read_density.f]
+2. Bug fixed in get_param_siesta: stopped if bands not found; now fixed
+   [file: SIESTA_Tools/get_param_siesta.f]
+3. New design for the hat (when lev00 starts), similar to that of TETR.
+   tmake script creates build.hat file which is attached to hat.f
+   [files: lev00.f, hat.f, make00.lev, tmake]
+
+12.03.2007 Version 2.46.2
+^^^^^^^^^^^^^^^^^^^^^^^^^
+1. Format statements in the DOS routines were changed to allow for up to 99999
+   bands to be displayed
+   [files: lev00.f, prep_dos.f]
+2. get_param_siesta modified to read the main output file for the grid and
+   spin if the RHO file is not available; also, one small bug fixed
+   [file: get_param_siesta.f]
+
+2.04.2007 Version 2.46.3
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. a bug in bastr.f corrected (interestingly, this one was fixed a long time
+   ago in tetr!)
+   [file: bastr.f]
+
+16.10.07 Version 3.0
+^^^^^^^^^^^^^^^^^^^^
+This is MAJOR DEVELOPMENT: it is now f90 code with memory allocation, so that there is
+no need to run do_param and get_param_siesta to recompile the code for the specific
+system. It is now only required a single compilation during installation.
+The codes  do_param and get_param_siesta are now completely redundant together
+with the lev00.comp script!
+
+NEW features: it
+
+1. combines do_param and get_param_siesta routines with lev00 into a single package
+2. all array boundaries are worked out automatically from the VASP or SIESTA output 
+   and/or input files, where appropriate, and
+3. all arrays depending on the system size paramaters are allocated and deallocated
+   as appropriate.
+4. other f90 features are used including modules instead of common blocks.
+5. CASTEP and CETEP capabilities have been removed as redundant.
+6. some cleaning up of the routines.
+7. some little changes of the menu options around the code.
+8. all (except that in the bastr.f90 routine) 'stop' commands have been
+   removed so the the run could be safely contiued even if something goes wrong
+   (e.g. a file does not exist or incompatible).
+
+At this stage I tried to keep the code unchanged whenever possible to ease its
+debugging and testing. Therefore, no new major features in this version. 
+
+   [files: all; new files added ]
+
+17.10.07 Version 3.01
+^^^^^^^^^^^^^^^^^^^^^
+1. bug fixes
+2. detailed account of reading SIESTA input is given on the screen for
+convenience
+   [files: read_siesta_input.f90, tools_strings.f90, hat.f90, hould.f90,
+           lev00.f90, mainmenu.f90, read_vasp_geom.f90, seed.f90, 
+           lev_coulmb.f90, get_param_siesta.f90]
+
+31.10.07 Version 3.02
+^^^^^^^^^^^^^^^^^^^^^
+1. negative VASP densities can also be read in, density is not set up to zero if
+   negative (to support density differences)
+   [file: read_density.f90]
+
+10.11.07 Version 3.03
+^^^^^^^^^^^^^^^^^^^^^
+1. a less stringent procedure for reading vasp input files implemented to allow some 
+   variations in the vasp output in OUTCAR; in particular, after a non-scf run, band
+   energies are not given, so that lev00 proceeds without the DOS option; logical 
+   variable (yesen) is intorduced to distinguish between the existence of k-points 
+   (yeskp) and the KS energies.
+   [files: mainmenu.f90, lev00.f90, read_vasp_geom.f90, do_param.f90, get_param_siesta.f90,
+           read_siesta_input.f90, kpoints.f90]
+
+4.12.07 Version 3.04
+^^^^^^^^^^^^^^^^^^^^^
+
+1. a check is performed on consistency of the information in te brill.dat file with the
+   number of k-points from the initialisation (NKPTS); DOS will not be calculated if 
+   inconsistency is found.
+   [files: prep_dos.f90, prep_disp.f90]
+2. a bug in reading unformatted siesta RHO files fixed
+   [file: read_density.f90]
+
+28.02.08 Version 3.05
+^^^^^^^^^^^^^^^^^^^^^
+1. when reading species names from the OUTCAR file, only the first two characters
+   before the underscore character are kept; the rest is ignored - no error message
+   is given anymore
+   [file: do_param.f90]
+2. Species La is added.
+   [file: mendeleev.f90]
+3. format of the charge density is changed when saved in the vasp format to improve
+   transferability
+   [files: read_density.f90, write_dens.f90, manip_dens.f90] 
+4. format improved when writing number of grid points in calculating charges in spheres
+   [file: plot_add.f90]
+
+10.04.08 Version 3.06
+^^^^^^^^^^^^^^^^^^^^^
+1. a bug in the routine reading siesta density for manipulation fixed
+  [file:  read_density.f90]
+2. a bug in a write statement
+  [file: get_param_siesta.f90]
+3. a bug in writing siesta density fixed
+  [file: write_dens.f90]
+4. a bug in defining A_au, au_A fixed
+  [file:  read_density.f90]
+
+09.06.08 Version 3.07
+^^^^^^^^^^^^^^^^^^^^^
+
+1. density mainpulation routine bug: the density is saved much too late; fixed
+  [file: manip_dens.f90]
+2. a check on the species when reading vasp density files for manipulation is
+   handled with more freedom - only warnings are given, but one may proceed in
+   the calculation even if the files have different species or their numbers;
+   files are considered inconsistent if only lattice vectors and the grid are
+   different; no more check is performed against the geometry file read in 
+   initially when staring lev00
+  [file: read_density.f90]
+
+01.07.08 Version 3.08
+^^^^^^^^^^^^^^^^^^^^^
+1. bug fixes 
+  [files: menu.f90, read_density.f90]
+
+27.11.08 Version 3.09
+^^^^^^^^^^^^^^^^^^^^^
+1. bug fixes in the routines working on the DOS
+  [files: prep_dos.f90, prep_disp.f90, dos_add.f90]
+2. To avoid a crap produced sometimes by gnuplot when it sees the double precision numbers,
+   we write to the file for gnuplot when working on the DOS in a simpler format.
+  [files: prep_dos.f90, prep_disp.f90, tools.f90]
+
+28.11.08 Version 3.10
+^^^^^^^^^^^^^^^^^^^^^
+1. spin components of PARCHG and LOCPOT files (if exist) can also be read in the same manner
+   as of CHGCAR (in the case of VASP)
+  [files: mainmenu.f90, density.f90, read_density.f90]
+  
+30.04.09 Version 3.11
+^^^^^^^^^^^^^^^^^^^^^
+1. NEW: projected DOS for SIESTA. One can read in siesta PDOS files and plot them.
+   Up to 20 PDOS curves can be plotted alongside the total DOS, for each PDOS curve
+   a sum over a subset of atoms is done. One can choose different subsets for each PDOS.
+   TTag routine from tetr (updated and suplied with an extra feature of choosing atoms
+   by species, option [Sp]) has been implemented for selecting atoms.
+  [files: ttag.f90, read_siesta_pdos.f90, device.f90, mainmenu.f90, tools_strings.f90, 
+          plotting.f90,Makefile]
+2. some minor bugs (mainly in writing on the screen)
+  [files: read_siesta_input.f90, lev00.f90]
+
+06.05.09 Version 3.12
+^^^^^^^^^^^^^^^^^^^^^
+
+1. NEW: information about the Fermi energy and HOMO/LUMO energies is displayed from the
+   siesta output and EIG files in the PDOS option. This addition is not yet complete,
+   as spin-polarised calculation is not yet handled.
+   [files: read_siesta_input.f90, get_param_siesta.f90]
+2. An option TD added to the siesta PD menu to show or not the total DOS.
+   [file: read_siesta_pdos.f90, plotting.f90]
+3. NEW: in the case of SIESTA, XV file is not longer needed, only fdf file is now used
+   for all necessary information concerning arrays dimensions, geometry, etc.
+   [files: get_param_siesta.f90, read_siesta_input.f90]
+
+08.05.09 Version 3.13
+^^^^^^^^^^^^^^^^^^^^^
+1. NEW: total DOS can be plotted from siesta [seed].EIG file as well.
+   [files: mainmenu.f90, read_siesta_pdos.f90, plotting.f90, 
+           read_siesta_input.f90, siesta_eig.f90, Makefile]
+2. A bug fixed.
+   [file: read_siesta_pdos.f90]
+3. Rearrangement of siesta PDOS menus.
+   [file: read_siesta_pdos.f90]
+
+20.05.09 Version 3.14
+^^^^^^^^^^^^^^^^^^^^^
+
+1. NEW: manipulation option has been taken out of the density menu and moved into the very
+   first menu. This allows one to manipulate densities without reading in all the geometry, etc.
+   files. This is especially useful for generating a density difference file.
+   [files: mainmenu.f90, code.f90, read_density.f90, manip_dens.f90]
+2. seed string is initialised before it is read in from a siesta input file; strangely, not doing so
+   caused a problem on some platforms.
+   [file: get_param_siesta.f90]
+ 
+22.05.09 Version 3.15
+^^^^^^^^^^^^^^^^^^^^^
+1. NEW: a possibility added to the manipulation menu to check density files even without
+   manipulating them,.
+   [files: manip_dens.f90, read_density.f90]
+
+28.05.09 Version 3.16
+^^^^^^^^^^^^^^^^^^^^^
+1. A bug (since version 3.12) fixed (atomic positions read in from SIESTA were wrongly multiplied by
+   a conversion factor au_A).
+   [file: read_siesta_input.f90]
+
+18.06.09 Version 3.17
+^^^^^^^^^^^^^^^^^^^^^
+1. A bug in reading lattice vectors from siesta density file fixed.
+   [files: manip_dens.f90, read_density.f90]
+
+21.12.09 Version 3.18
+^^^^^^^^^^^^^^^^^^^^^
+
+1. Reading of RWIGS from the output of newer versions of vasp
+2. Working out the number of species is done differently due to a different
+   pseudopotential information vasp may produce
+3. Errors in reading CHGCAR0-like files of VASP are made specific to help to identify them.
+   [files: do_param.f90, read_vasp_geom.f90, read_density.f90]
+
+10.01.10 Vewrsion 3.19
+^^^^^^^^^^^^^^^^^^^^^^
+1. Allocation of Z_atom was moved at the beginning of the routine density() since some compilers
+   give an error after hitting 4 in the type of density menu for VASP.
+   [file: density.f90]
+
+15.03.10 Vewrsion 3.20
+^^^^^^^^^^^^^^^^^^^^^^
+1. A bug in calling routines find_string fixed (rewind at the beginning was missing)
+   [files: get_param_siesta.f90]
+
+29.05.10 Vewrsion 3.21
+^^^^^^^^^^^^^^^^^^^^^^
+1. differences in the format of OUTCAR, CHGCAR and PARCHG in vasp version 5.2 with the previous
+   versions were addressed. 
+   [files: do_param.f90, density.f90, read_density.f90]
+2. Format of on-screen statements when reporting the reading from a file changed ("... done 10%", etc.)
+   [files: read_density.f90, manip_dens.f90, simulate.f90, write_dens.f90]
+3. New species added - the whole Mendellev's Table, all 112 of them!
+   [files: read_vasp_geom.f90, mendeleev.f90]
+
+06.11.10 Vewrsion 3.22
+^^^^^^^^^^^^^^^^^^^^^^
+1. A bug in a format statement fixed.
+   [file: density.f90]
+
+06.07.11 Version 3.23
+^^^^^^^^^^^^^^^^^^^^^^
+1. Bugs in calculating total and projected DOS for siesta from the EIG and PDOS files were fixed.
+   [files: siesta_eig.f90, read_siesta_pdos.f90]
+2. NEW: in calculating total and projected DOS from siesta EIG and PDOS files it is now
+   possible to choose spin in the case of a spin-polarised calculation
+   [files: mainmenu.f90, siesta_eig.f90, read_siesta_pdos.f90]
+3. In addition, all the menus related to DOS are better presented (revamped)
+   [files: get_param_siesta.f90, mainmenu.f90]
+4. It is indicated in the case of the tetrahedron method for the DOS if there is no spread
+   of eigenvalues (energies) wrt to the k-points
+   [file: dos.add.f90]
+
+10.07.11 Version 3.24
+^^^^^^^^^^^^^^^^^^^^^^
+1. Atomic number and species are displayed in the Tasks menu of PD in the case of vasp,
+   i.e. whne showing all projected DOS tasks, one can see the actual atoms numbers and their
+   species.
+   [files: dos_inc.f90, prep_dos.f90, read_vasp_psi2.f90]
+2. NEW: Instead of calculating PDOS in the PD menu for a single task (e.g. s-projection on a particular atom),
+   it is now possible to choose various sets of atoms and calculate either t,s,p or d -type PDOS
+   on all these atoms, i.e. the sum of the elementary PDOS. The whole menu is revamped completely. 
+   This is achieved with option CT. By repeatedly invoking this option, a new subset of PDOS tasks can be added,
+   i.e. a complex list of tasks can be created if needed. A single task can be chosen/added as well using the old
+   option 1.
+   [files: prep_dos.f90, dos_add.f90, read_vasp_psi2.f90, dos_inc.f90, prep_disp.f90, choose_tasks.f90, Makefile ]
+
+11.07.11 Version 3.25
+^^^^^^^^^^^^^^^^^^^^^^
+1. Relaxation flags are read in for any siesta input and printed initially with the atomic coordinates.
+   [files: atoms.f90, read_siesta_input.f90, lev00.f90, read_vasp_geom.f90]
+2. NEW: an option  Ck is added in the main menu for siesta to check the last atomic forces and whether the relaxation
+   successfuly completed.
+   [files: mainmenu.f90
+
+20.07.11 Version 3.26
+^^^^^^^^^^^^^^^^^^^^^^
+1. An inconsistency with spins fixed (jspin was made to be either 1 or 2, but never 0)
+   [file: mainmenu.f90]
+2. A bug in checking siesta forces (option Ck): in some cases siesta prints forces differently, and that was now taken
+   into account.
+   [file: mainmenu.f90]
+
+10.09.11 Version 3.27
+^^^^^^^^^^^^^^^^^^^^^^
+1. Bug fxes in DOS/PDOS routines (a little mess with allocations/deallocations)
+   [files: prep_dos.f90, read_vasp_psi2.f90 do_tar_improved ]
+
+

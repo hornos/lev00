@@ -1,0 +1,2 @@
+      write(*,*)'>>>>>>>>  Version    : 3.27 '
+      write(*,*)'>>>>>>>>  Build      : Sat Sep 10 17:11:19 BST 2011 '

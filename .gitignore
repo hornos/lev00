@@ -1,0 +1,11 @@
+.DS*
+*.old
+*.o
+*.s
+*.mod
+*.f90
+*.a
+fort.*
+test/*
+tmake
+lev00

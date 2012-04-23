@@ -1,0 +1,27 @@
+#!/bin/csh 
+##########################################################################
+#### This script creates the LEV00 hat file that contains version number
+#### and the build date.
+##########################################################################
+
+## get the todays date in the hat() routine
+date > tmp1
+set time=`cat tmp1`
+/bin/rm tmp1
+
+## get the version number into the hat() routine
+set ver=$1
+
+echo $ver $time
+
+echo "      write(*,*)'>>>>>>>>  Version    : $ver '" > build.hat
+echo "      write(*,*)'>>>>>>>>  Build      : $time '" >> build.hat
+
+cat build.hat
+#################################################################
+if( -e hat.o ) then
+    /bin/rm  hat.o
+endif
+echo "Done\!"
+
+

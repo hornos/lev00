@@ -17,11 +17,10 @@ implicit none
 real*8, dimension(:,:,:),allocatable :: GRID
 real*8, parameter :: pi=3.1415927d0
 real*8, parameter :: tiny = 0.00001
-complex*16 :: comp0
-integer ijk,item,iErr,lenght
+integer ijk,iErr,lenght
 real*8 Dip(3),Quadr(3,3),totdens
-character answer,cha,iask,cha2*2
-character filen*12,filen1*12,name*6
+character cha,cha2*2
+character filen*12,filen1*12,name*6,item*2
 logical Dip_Done, Quadr_Done,spin
 !
 !........... do BCELL = RECC/(2*pi) - it is used in transforming
@@ -46,28 +45,30 @@ logical Dip_Done, Quadr_Done,spin
 !_______________ VASP input
    if(Which_Code.eq.'  VASP') then
 
-!      if(.not. spin) then
+      if(.not. spin) then
 1        write(*,*) '....... Choose the file to be read in: ......'
          write(*,*)
-         write(*,*) '  1. total electron density CHGCAR'
-         write(*,*) '  2. partial electron density PARCHG'
-         write(*,*) '  3. electrostatic potential LOCPOT'
-         write(*,*) '  4. quit: do not read any file'
+         write(*,*) '  C. Total electron density CHGCAR'
+         write(*,*) '  P. Partial electron density PARCHG'
+         write(*,*) '  L. Electrostatic potential LOCPOT'
+         write(*,*) '  Q. Quit: do not read any file'
          write(*,*)
          write(*,*)'------------>'
-         read(*,*,ERR=3) item
-         if(item.eq.1) then
+         read(*,'(a)',err=1) item
+         if(item.eq.'C') then
             name='CHGCAR'
-         else if(item.eq.2) then
+         else if(item.eq.'P') then
             name='PARCHG'
-         else if(item.eq.3) then
+         else if(item.eq.'L') then
             name='LOCPOT'
+         else if(item.eq.'Q') then
+            return
          else
-            go to 100
+            go to 1
          end if
-!      else
-!         name='CHGCAR'
-!      end if
+      else
+         name='CHGCAR'
+      end if
       write(*,*)'Reading in the density from '//name//' ...'
       filen1='  '//name//'.new'
       call vasp_dens(grid,totdens,name,spin,iErr)
@@ -118,63 +119,66 @@ logical Dip_Done, Quadr_Done,spin
    write(*,*)'...... Choose between line or plane ......'
    write(*,*)
    write(*,'(a33,i2)')'     NUMBER OF THE CURRENT PLOT: ',ijk
-   write(*,*)'  1. Plot density along a line'
-   write(*,*)'  2. Plot density in a plane'
-   write(*,*)'  3. Amount of charge inside a sphere'
-   write(*,*)'  4. Exploration of the density'
+   write(*,*)' pL. Plot density along a line'
+   write(*,*)' pP. Plot density in a plane'
+   write(*,*)' CS. Amount of charge inside a sphere'
+   write(*,*)' Ex. Exploration of the density'
    if(Dip_Done) then
-      write(*,*)'  5. Dipole moment <== DONE!'
+      write(*,*)' DM. Dipole moment <== DONE!'
    else
-      write(*,*)'  5. Dipole moment'
+      write(*,*)' DM. Dipole moment'
    end if
    if(Quadr_Done) then
-      write(*,*)'  6. Quadrupole moment <== DONE!'
+      write(*,*)' QM. Quadrupole moment <== DONE!'
    else
-      write(*,*)'  6. Quadrupole moment'
+      write(*,*)' QM. Quadrupole moment'
    end if
    if(Dip_Done.and.Quadr_Done) write(*,*) &
-       '  7. Get density via point charges: match moments & potential'
-   write(*,*)'  8. Cutting atoms out of the density'
-   write(*,*)'  9. Write non-zero density as '//filen1
-   write(*,*)' 10. Write density in gOpenMol cube format'
-   write(*,*)' 11. Get density via point charges: match density'
-   write(*,*)' 12. Transform the charge density for a shifted system'
-   write(*,*)' 13. Return to the previous menu'
+       ' vP. Get density via point charges: match moments & potential'
+   write(*,*)' cA. Cutting atoms out of the density'
+   write(*,*)' wD. Write non-zero density as '//filen1
+   write(*,*)' gO. Write density in gOpenMol cube format'
+   write(*,*)' mD. Get density via point charges: match density'
+   write(*,*)' Sf. Transform the charge density for a shifted system'
+   write(*,*)' TH. STM image (Tersoff-Hamann)'
+   write(*,*)'  Q. Return to the previous menu'
    write(*,*)
    write(*,*)'------------>'
-   read(*,*,ERR=3) item
-   if(item.eq.1) then
+   read(*,'(a)',err=3) item
+   if(item.eq.'pL') then
       call line(grid,DIRC,BCELL,VOLC,filen,lenght)
       ijk=ijk+1
-   else if(item.eq.2) then
+   else if(item.eq.'pP') then
       call plane(grid,DIRC,BCELL,VOLC,filen,lenght)
       ijk=ijk+1
-   else if(item.eq.3) then
+   else if(item.eq.'CS') then
       call charge_sph(grid,DIRC,BCELL,VOLC,totdens,filen,lenght)
       ijk=ijk+1
-   else if(item.eq.4) then
+   else if(item.eq.'Ex') then
       call max_dens(grid,DIRC,BCELL,VOLC,totdens)
-   else if(item.eq.5) then
+   else if(item.eq.'DM') then
       call dipole(grid,totdens,filen,lenght,Dip)
       Dip_Done=.true.
-   else if(item.eq.6) then
+   else if(item.eq.'QM') then
       call quadrpl(grid,Quadr)
       Quadr_Done=.true.
-   else if(item.eq.7 .and.Dip_Done.and.Quadr_Done) then
+   else if(item.eq.'vP'  .and. Dip_Done .and. Quadr_Done) then
       call simulate(grid,Dip,Quadr,filen,lenght)
-   else if(item.eq.8) then
+   else if(item.eq.'cA') then
       call cut_atoms(grid,totdens)
-   else if(item.eq.9) then
+   else if(item.eq.'wD') then
       write(*,*)'Writing non-zero elements to a new density file ...'
       call write_dens(grid)
       ijk=ijk+1
-   else if(item.eq.10) then
+   else if(item.eq.'gO') then
       call for_gOpenMol(grid)
-   else if(item.eq.11) then
+   else if(item.eq.'mD') then
       call simul_box(grid)
-   else if(item.eq.12) then
+   else if(item.eq.'Sf') then
       call shift_charge(grid,DIRC,BCELL)
-   else if(item.eq.13) then
+   else if(item.eq.'TH') then
+      call stm_TH(grid)
+   else if(item.eq.'Q') then
       go to 100
    else
       go to 3
@@ -214,7 +218,7 @@ real*8 Pot_Diff,dipm,Vol,rCharge,dV,factor,den,rCh,dQ,Qleft,Qright,ar,a
 integer ngrid(3),NRs(3),iQuit,i,j,nChrg,iPnt,Nchrg1,NN2,NN,k
 integer ijk,j0,ix,iy,iz,n1,n2,n3,k1,k2,k3,jj,Ncell,NunitCell,nat,i1,i2,i3
 real*8, dimension(:,:,:),allocatable :: Poten,Poten1
-character iask,cha,line*40,cha1,cha2*2
+character iask,cha1,cha2*2
 logical Yes_Do,Yes_Pot,Yes_Comp, Yes_Dip
 data Center/3*0.0/,ngrid/3*1/,NunitCell/1/
 data Face/3*1.0/,TotCh/0.0/,NRs/3*10/,NN2/3/
@@ -725,11 +729,11 @@ use atoms
 use menu
 implicit none
 real*8,parameter :: tiny=0.01
-real*8 GRID(NGX,NGY,NGZ),R(3),x(3),totdens,drad,rCharge1,rCharge2,rCharge3,charg
+real*8 GRID(NGX,NGY,NGZ),R(3),totdens,drad,rCharge1,rCharge2,rCharge3,charg
 real*8 rad,factor,dx,dv,c1,rad1,ar,rad2,c2,rCharge4,charge_tot,rCharge,denval
 real*8,dimension(:),allocatable :: RadCut,NumE_asked,NumE_nonconserv,NumE_conserv
 integer,dimension(:),allocatable :: NumAt
-character iask,cha,line*40,answer,cha2*2
+character iask,line*40,answer,cha2*2
 logical Yes_Spec,Yes_Rad,Yes_Cut
 integer iQuit,NumAtCut,jj,i,im,j,iPnt,iPnt3,i0,i1,n1,n2,jj0,nat,ii,iz,iy,ix
 integer k1,k2,k3,isp,ijk,j0
@@ -1189,9 +1193,9 @@ real*8,dimension(:,:),allocatable  :: Pos
 real*8,dimension(:),allocatable  :: Zd_tmp
 integer,dimension(:),allocatable :: iType
 integer,dimension(3) :: ngrid=(/1,1,1/)
-real*8 :: vect(3,3),corner(3),da(3),ace1,TotCh=0.0,dV,rCharge
-integer i,iQuit,j,iPnt,ijk,j0,iX,iY,iZ,nt,nat,k,nChrg,i1,i2,i3
-character iask,cha,line*40,cha1,cha2*2
+real*8 :: vect(3,3),corner(3),da(3),TotCh=0.0,dV,rCharge
+integer i,j,iPnt,ijk,j0,iX,iY,iZ,nt,nat,k,nChrg,i1,i2,i3
+character iask,line*40,cha2*2
 logical Yes_Do,Yes_xyz,Err
 !
 !________ default for the directions of the box sides:
@@ -1209,8 +1213,7 @@ logical Yes_Do,Yes_xyz,Err
 !
       Yes_Do=.false.
       Yes_xyz=.true.
-1     iQuit=0
-      write(*,*)'............MENU for gOpenMol writer .................'
+1     write(*,*)'............MENU for gOpenMol writer .................'
       write(*,*)'......... Change these parameters if necessary:.......'
       write(*,*)
 
@@ -1229,9 +1232,9 @@ logical Yes_Do,Yes_xyz,Err
           '   2. Lengths of the box sides (in A) are: ',(Face(i),i=1,3)
 
       do i=1,3
-        do j=1,3
-          Sides(i,j)=Direct(i,j)*Face(i)
-        end do
+         do j=1,3
+            Sides(i,j)=Direct(i,j)*Face(i)
+         end do
       end do
       call BASTR(Sides,RecipS,VolBox,0)
       corner(1)=Center(1)-0.5*(Sides(1,1)+Sides(2,1)+Sides(3,1))
@@ -1284,17 +1287,17 @@ logical Yes_Do,Yes_xyz,Err
       write(*,'(a)') '-------  G e n e r a l  s e t t i n g s ---------'
       write(*,'(a)')'  An. Coordinates are specified in: '//angstr
       write(*,'(a)') '  Co. Show current atomic positions in fractional/Cartesian'
-      write(*,'(a)')'  cT. Centre of a triangle of points/atoms'
-      write(*,'(a)')'  mD. Middle distance between two points/atoms'
       if(Yes_xyz) then
          write(*,'(a)') &
           '  XY. Atoms in the XYZ box: constrained by the density box'
       else
          write(*,'(a)')   '  XY. Atoms in the XYZ box: all cell atoms'
       end if
-
-      write(*,'(a)')'------ L e a v e   t h e   m e n u -------------'
-      write(*,'(a)')'   Q. Return to the previous menu'
+      write(*,'(a)') '------------ C a l c u l a t o r ----------------'
+      write(*,'(a)') '  cT. Centre of a triangle of points/atoms'
+      write(*,'(a)') '  mD. Middle distance between two points/atoms'
+      write(*,'(a)') '------ L e a v e   t h e   m e n u --------------'
+      write(*,'(a)') '   Q. Return to the previous menu'
       write(*,*)
       write(*,*)'------> Choose the item and press ENTER:'
       read (*,'(a)',err=1) cha2
@@ -1472,9 +1475,7 @@ logical Yes_Do,Yes_xyz,Err
          call givepoint(R1(1),R1(2),R1(3),angstr)
          WRITE(*,*)'Give the 3rd point/atom:'
          call givepoint(R2(1),R2(2),R2(3),angstr)
-         do i=1,3
-            x(i)=(R(i)+R1(i)+R2(i))/3.0
-         end do
+         x=(R+R1+R2)/3.0
          write(*,*)'The centre of the triangle is at:',(x(i),i=1,3)
 
 !
@@ -1485,9 +1486,7 @@ logical Yes_Do,Yes_xyz,Err
          call givepoint(R(1),R(2),R(3),angstr)
          WRITE(*,*)'Give the 2nd point/atom:'
          call givepoint(R1(1),R1(2),R1(3),angstr)
-         do i=1,3
-            x(i)=0.5 * (R(i)+R1(i))
-         end do
+         x=(R+R1)/2.0
          write(*,*)'The middle distance between the points is at:', &
               (x(i),i=1,3)
 !
@@ -1523,7 +1522,7 @@ implicit none
 real*8 GRID(NGX,NGY,NGZ),DIRC(3,3),BCELL(3,3)
 real*8 shift(3),x(3),totdens,denval
 real*8,dimension(:,:,:),allocatable :: GRIDn
-integer i,j,k,ix,iy,iz
+integer ix,iy,iz
 
 !........ save the current density in gridn()
       allocate(GRIDn(NGX,NGY,NGZ))

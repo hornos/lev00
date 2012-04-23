@@ -440,9 +440,7 @@ real*8 R(3), x(3), BCELL(3,3)
 integer intx(3), cube(2,2,2,3),i1,i2,i3
 real*8 grid(NGX,NGY,NGZ), frac(3),t5,t6,denval,t1,t2,t3,t4
 integer,dimension(3) :: nmesh
-      nmesh(1)=NGX
-      nmesh(2)=NGY
-      nmesh(3)=NGZ
+      nmesh(1)=NGX ; nmesh(2)=NGY ; nmesh(3)=NGZ
 !
 !________ get coefficients x() in the decomposition of r() with
 !         respect to DIRC;

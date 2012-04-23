@@ -59,13 +59,12 @@ data cha/'t','s','p','d'/
          read(line(LinPos(2):LinEnd(2)),*) nb1
          if(nb1.ne.nb) go to 300
          
-         call find_2strings('ion ',4,' s ',3,line,15, &
-              .false.,iErr)
+         call find_2strings('ion ',4,' s ',3,line,15,.false.,iErr)
          if(iErr.eq.1) go to 300
          call CutStr(line,NumLin,LinPos,LinEnd,0,0,iErr)
          do nat=1,NIONS
             if(NumLin.eq.11) then
-               read(15,*) nat1,s,px,py,pz,dxy,dyz,dz2,dxz,dx2,tot
+               read(15,*) nat1,s,py,pz,px,dxy,dyz,dz2,dxz,dx2,tot
                if(nat.ne.nat1)  go to 300
                psi2(nkp,nb,4*nat-3)=tot
                psi2(nkp,nb,4*nat-2)=s

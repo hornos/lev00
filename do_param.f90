@@ -7,7 +7,7 @@ implicit none
 !.................................................................
 !  reads OUTCAR file and creates all parameters from module PARAM
 !.................................................................
-character Line*200,cha
+character Line*200
 integer LinEnd(100),LinPos(100),i0
 logical                             :: found=.false.,Err1=.true.,Err
 integer                             :: isp,NumLin,iErr,i,NKP,jNB,jNB1,NB,k
@@ -103,9 +103,24 @@ real*8, dimension(:,:), allocatable :: E
       go to 10
    end if
 !
+!................. determine the number of iterations and then jump to the last one
+!                  (this seems to be the case for VASP 5.2)
+!
+   i=0
+26 call find_string('Iteration',9,line,1,.true.,iErr)
+   if(iErr.eq.0) then
+      i=i+1 ; go to 26
+   end if
+   write(*,*)'The output contains ',i,' electronic iterations'
+   if(i.eq.0) go to 27
+   rewind(1)
+   do k=1,i
+      call find_string('Iteration',9,line,1,.true.,iErr)
+   end do
+!
 !.................. read eigenvalues from OUTCAR
 !
-   allocate(E(NKPTS,NBANDS))
+27 allocate(E(NKPTS,NBANDS))
    do isp=1,ISPIN
       if(isp.eq.1) then
          if(ISPIN.eq.1) then

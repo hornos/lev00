@@ -8,7 +8,7 @@ subroutine line(grid,DIRC,BCELL,VOLC,filen,lenght)
 use param
 use menu
 implicit none 
-real*8 GRID(NGX,NGY,NGZ),DIRC(3,3),BCELL(3,3),R(3),x(3),dzero
+real*8 GRID(NGX,NGY,NGZ),DIRC(3,3),BCELL(3,3),R(3),dzero
 real*8 bCENTX,bCENTY,bCENTZ,denval
 character filen*12,Title*50,title_pl*7,cha2*2
 data Title/'                                                  '/
@@ -209,7 +209,7 @@ subroutine plane(grid,DIRC,BCELL,VOLC,filen,lenght)
 use param
 use menu
 implicit none
-real*8 DIRC(3,3),BCELL(3,3),pA(2),pB(2),pC(2),x(3),GRID(NGX,NGY,NGZ),R(3)
+real*8 DIRC(3,3),BCELL(3,3),pA(2),pB(2),pC(2),GRID(NGX,NGY,NGZ),R(3)
 real*8,parameter :: tiny=0.00001,dzero=0.0
 character filen*12, Title*50,cha2*2
 data Title/'                                                  '/
@@ -451,8 +451,7 @@ real*8 a,fCENTX,fCENTY,fCENTZ,displ,xcoord,ycoord,VOLC,denval,absden
                                    k3*vers3z*width2)/nresol_prv
                   call reducn(R,DIRC,BCELL)
                   call interpolate(R,BCELL,denval,grid)
-                  xcoord=k2*width1/nresol_prv
-                  ycoord=k3*width2/nresol_prv
+                  xcoord=k2*width1/nresol_prv ; ycoord=k3*width2/nresol_prv
                   absden=(denval*multcon)/VOLC
                   if(lochop.ne.hichop) then
                      if(absden.gt.hichop) then
@@ -471,7 +470,7 @@ real*8 a,fCENTX,fCENTY,fCENTZ,displ,xcoord,ycoord,VOLC,denval,absden
             call Plot3d('test.dat',lenght3,Title, &
                  'X-coordinate (A)    ','Y-coordinate (A)    ', &
                  'Charge density      ',  'Screen', 33, &
-                 nclasses,nresol_prv,type_prv)
+                 nclasses,type_prv)
          else
             write(*,*)'ERROR! You still have undefined parameters!'
          end if
@@ -790,33 +789,25 @@ real*8 dV,dX,aR,denval,Rad,c1,c2,rad1,factor_way,totdens,VOLC,charg,rad2
 !            inside Radius
 !
               DO ii=1,N_Sp
-                 dX=Radius(ii)/(NRESOLs/2)
-                 dV=dX*dX*dX
-                 factor=dV/VOLC
+                 dX=Radius(ii)/(NRESOLs/2) ; dV=dX*dX*dX ; factor=dV/VOLC
                  if(Radius(ii).ne.dzero) then
+
                     do k1=-NRESOLs/2,NRESOLs/2
                        do k2=-NRESOLs/2,NRESOLs/2
                           do k3=-NRESOLs/2,NRESOLs/2
-                             R(1)= dX*k1
-                             R(2)= dX*k2
-                             R(3)= dX*k3
+
+                             R(1)= dX*k1 ; R(2)= dX*k2 ; R(3)= dX*k3
                              aR=sqrt(R(1)*R(1)+R(2)*R(2)+R(3)*R(3))
                              if(aR.le.Radius(ii)) then
-                                R(1)=R(1)+Point(1,ii)
-                                R(2)=R(2)+Point(2,ii)
-                                R(3)=R(3)+Point(3,ii)
+                                R(1:3)=R(1:3)+Point(1:3,ii)
                                 
                                 if(ii.ne.1) then
                                    do ij=1,ii-1
                                       do j1=-1,1
                                          do j2=-1,1
                                             do j3=-1,1
-                                               x(1)=j1*DIRC(1,1)+j2*DIRC(2,1)+ &
-                                                    j3*DIRC(3,1)+R(1)-Point(1,ij)
-                                               x(2)=j1*DIRC(1,2)+j2*DIRC(2,2)+ &
-                                                    j3*DIRC(3,2)+R(2)-Point(2,ij)
-                                               x(3)=j1*DIRC(1,3)+j2*DIRC(2,3)+ &
-                                                    j3*DIRC(3,3)+R(3)-Point(3,ij)
+                                               x(1:3)=  &
+                        j1*DIRC(1,1:3)+j2*DIRC(2,1:3)+j3*DIRC(3,1:3)+R(1:3)-Point(1:3,ij)
                                                aR=sqrt(x(1)*x(1)+x(2)*x(2)+x(3)*x(3))
                                                if(aR.le.Radius(ij)) go to 21
                                             end do
@@ -830,9 +821,11 @@ real*8 dV,dX,aR,denval,Rad,c1,c2,rad1,factor_way,totdens,VOLC,charg,rad2
                                 rCharge = rCharge + denval*factor
                              end if
 21                           continue
+
                           end do
                        end do
                     end do
+
                  end if
               END DO
               write(*,'(2(f10.5,5x))') Rad, rCharge*factor_way

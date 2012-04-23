@@ -339,7 +339,7 @@ use param
 use menu
 use atoms 
 implicit none
-real*8 :: Q(NIONS),vMad,factor,gEwald,EPSx,bCENTX,bCENTY,bCENTZ,pot
+real*8 :: Q(NIONS),vMad,factor,gEwald,EPSx,pot
 real*8, dimension(3) :: Pnt=(/0.0,0.0,0.0/),fPnt(3)
 integer :: iCoord=0,iQuit,item,iCheck
 !
@@ -426,7 +426,7 @@ implicit none
 real*8 :: R(3),Q(NIONS),tiny=0.00001,dzero=0.0,vMad,factor,gEwald,EPSx
 real*8 :: fCENTX,fCENTY,fCENTZ,xcoord,a,absden,bCENTX,bCENTY,bCENTZ
 character filen*12,Title*50,title_pl*7
-integer lenght,iQuit,item,k2,lenght3,iCheck
+integer lenght,iQuit,item,k2,iCheck
 data Title/'                                                  '/
 data title_pl/'       '/
 logical Yes_Do
@@ -615,7 +615,7 @@ use menu
 use atoms
 implicit none
 real*8 pA(2),pB(2),pC(2),R(3),Q(NIONS),vMad,factor,gEwald,EPSx,absden
-integer lenght,iQuit,item,k3,k2,k1,lenght3,iCheck
+integer lenght,iQuit,item,k3,k2,lenght3,iCheck
 character filen*12, Title*50
 data Title/'                                                  '/
 real*8 :: tiny=0.00001,dzero=0.0,a,fCENTX,fCENTY,fCENTZ,xcoord,ycoord
@@ -833,7 +833,7 @@ logical Yes_Do
             call Plot3d('test.dat',lenght3,Title, &
                  'X-coordinate (A)    ','Y-coordinate (A)    ', &
                 'Coulomb potential   ',  'Screen', 33, &
-                nclasses,nresol_prv,type_prv)
+                nclasses,type_prv)
          else
             write(*,*)'ERROR! You still have undefined parameters!'
          end if

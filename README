@@ -536,7 +536,85 @@ convenience
 
 10.09.11 Version 3.27
 ^^^^^^^^^^^^^^^^^^^^^^
-1. Bug fxes in DOS/PDOS routines (a little mess with allocations/deallocations)
-   [files: prep_dos.f90, read_vasp_psi2.f90 do_tar_improved ]
+1. Bug fixed in DOS/PDOS routines (a little mess with allocations/deallocations)
+   [files: prep_dos.f90, read_vasp_psi2.f90, do_tar_improved ]
 
+26.10.11 Version 3.28
+^^^^^^^^^^^^^^^^^^^^^^
+1. Vasp 5.2 (or even 4.0 ?) may print out in OUTCAR eigenvalues at every iteration which before would result in
+   read in only the very first set (not yet converged). This is now fixed: it searches for the very last iteration
+   and only then it read the KS eigenvalues for each k-point.
+   [file: do_param.f90]
+2. Option 1 in the PDOS menu ("Choose/Add a single PDOS task") was not actually working (likely, it was not finished
+   when new features ST and CT were added). Now fixed: using this option one can choose a single task or append to the
+   existing list (e.g. after 1 or CT). 
+   [file: prep_dos.f90]
+3. A bug fixed related to the tasks and going to a new PICTURE.
+   [file: prep_dos.f90]
+4. px,py, pz contributions for PDOS from the vasp PROCAR file were read in a wrong order, now fixed; no effect this
+   had on the P projection as only the sum of them was used anyway.
+   [file: read_vasp_pis2.f90]
 
+12.11.11 Version 3.29
+^^^^^^^^^^^^^^^^^^^^^^
+1. Gnuplot 4.4 (the latest at this time) has a different syntax, correspondingly the gnuplot feature did not work
+   with the new version. This has been fixed in this version of lev00. Hopefully, backward compatibility is also
+   ensured.
+   [file: plotting.f90]
+
+04.02.12 Version 3.30
+^^^^^^^^^^^^^^^^^^^^^^
+1. A missing command for 3D gnuplot plots was added (this one is needed for the Gnuplot 4.4)
+   [file: plotting.f90]
+2. Some cleaning of variables, etc.
+   [files:lev_coulomb.f90, plot_add.f90, device.f90, prep_dos.f90 ]
+3. NEW: Tersoff-Hamann routine (option TH in the D menu) added for working with STM images and spectroscopy. 
+   It was so far only tested for VASP. It may work with SIESTA as well, but I need to check the SIESTA LDOS
+   file first.
+   This is how the STM image (spectroscopy) to be calculated:
+      (i) run VASP normally to relax the structure and get CHGCAR; 
+     (ii) run VASP again with more k-points and the following options in INCAR:
+
+ISTART =1        [restart (0,1,2)]
+PREC=HIGH
+NSW = 0
+ICHARG=11        [keeps the density fixed (DOS or BAND options)]
+LPARD=.TRUE.     [for the local DOS]
+MBMOD = -3       [in EINT the energy window is given wrt E_Fermi]
+EINT = -1.0 0.0  [energy window: in this case all occ states 1 eV below the Fermi]
+
+    (iii) The run above should create PARCHG file which lev00 can read
+     (iv) run lev00 (you need OUTCAR, CONTCAR, PARCHG): 
+          V -> OUTCAR -> CONTCAR -> D -> P -> TH
+      (v) in the TH menu one can do either spectroscopy in up to 9 lateral points
+          or a 2D/3D plot of the constant LDOS topography
+    
+     [files: stm_TH.f90, plotting.f90, density.f90]
+4. In a number of places numerical menu items were changed into letters.
+   [file: density.f90]
+
+07.02.12 Version 3.31
+^^^^^^^^^^^^^^^^^^^^^^
+1. NEW: 8 options in total are provided for the 3D plots, some of them are really nice!
+   [files: menu.f90, stm_TH.f90, plotting.f90]
+2. It has been specifically checked that constant LDOS image can also be created from PARCHG file
+   using gOpenmol menu and the value of the current chosen beforehand with the TH menu. This way it is possible
+   also to have atoms displayed as well under the image.
+          
+09.02.12 Version 3.32
+^^^^^^^^^^^^^^^^^^^^^^
+1. Added an oprion El to the TH menu to enable/disable empty lines in the ldos.dat file for the LDOS
+   [file: stm_TH.f90]
+2. 'set size ratio 1' command added to test.gnu for 3D plots
+   [file: plotting.f90]
+
+27.02.12 Version 3.33
+^^^^^^^^^^^^^^^^^^^^^^
+1. wrong titles for X and Y axes in the STM spectroscopy; now swapped, so that they are correct.
+   [file: stm_TH.f90]
+2. wrong title for Z axis in 3D plots in STM routine; fixed.
+   [file: stm_TH.f90]
+3. error trap in inputing LDOS value in the STM menu (option I) has been put in
+   [file: stm_TH.f90]
+4. difiver was missing in the format in the PLot3D routine, now fixed
+   [file: plotting.f90]

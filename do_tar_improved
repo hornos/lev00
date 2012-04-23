@@ -26,7 +26,7 @@ if ( $type == 1 ) then
    echo $list_dir
 else if  ( $type == 2 ) then
    echo '...... OK: archive for myself (complete) ........'
-   set list_dir = ( MgO_ si-bulk Fe_Sb_O Dimer Avan-example DOS vasp_5.2a vasp5.2 Si_bulk_DOS_siesta Si_bulk_PDOS_siesta PDOS_vasp graphene_siesta graphene_vasp_PDOS )
+   set list_dir = ( MgO_ si-bulk Fe_Sb_O Dimer Avan-example DOS vasp_5.2a vasp5.2 Si_bulk_DOS_siesta Si_bulk_PDOS_siesta PDOS_vasp graphene_siesta graphene_vasp_PDOS vasp_5.2_Yvelin surface_4x2 )
    echo $list_dir
 else if  ( $type == Q ) then
    exit

@@ -14,7 +14,7 @@ real*8  :: vers3x=0.0,vers3y=0.0,vers3z=0.0,aCENTX=0.0,aCENTY=0.0,aCENTZ=0.0
 real*8  :: width1=0.0,width2=0.0
 real*8  :: multcon=1.0,lochop=0.0,hichop=0.0
 real*8,dimension(3) ::    Ra=(/0.0,0.0,0.0/),Rb,Rc
-character(len=7)  :: type_prv='contour'
+character(len=7)  :: type_prv='3d-col-'
 character(len=1)  :: way_res
 character(len=10) :: method='conserving'
 character(len=12) :: angstr='<Angstroms> '
@@ -105,19 +105,15 @@ subroutine choose3()
 !.......... for a 3-dimensional plot ...............................
 !...................................................................
 implicit none
-character enable*8
-integer item
+character enable*8,cha2*2
+
 !.............. show present setting
  1    write(*,*)'..............MENU ONE .......................'
       write(*,*)'..... Change these parameters if necessary:...'
       write(*,*)
-      if(type_prv.eq.'contour') &
-          write(*,*)'  0. Number of contour levels = ',nclasses
       write(*,'(a31,i5)')'   1. Resolution for the plot = ',nresol3
       write(*,'(a38,i5)') &
             '   2. Resolution for the previewing = ',nresol_prv
-      write(*,'(a38,a7)') &
-            '   3. Type of the preview picture is: ',type_prv
       if(lochop.eq.0.0) then
            enable='disabled'
       else
@@ -133,20 +129,39 @@ integer item
       write(*,'(a18,f6.2,a11)') &
                        '   5. High chop = ',hichop,' {'//enable//'}'
       write(*,'(a30,f6.2)')'   6. Multiplication factor    = ',multcon
-      write(*,'(a)')'   7. Return to the previous menu.'
+
+      if(type_prv.eq.'2d-old-') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 2D + contours'
+         write(*,*) ' cl. PREVIEW/Ps: number of contour levels = ',nclasses
+      else if(type_prv.eq.'2d-col-') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 2D + colours'
+      else if(type_prv.eq.'2d-gray') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 2D + gray palette'
+      else if(type_prv.eq.'3d-old-') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 3D + grid lines'
+      else if(type_prv.eq.'3d-c-2d') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 3D + 2D underneath; in colour'
+      else if(type_prv.eq.'3d-g-2d') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 3D + 2D underneath; in gray'
+      else if(type_prv.eq.'3d-col-') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 3D; in colour'
+      else if(type_prv.eq.'3d-col-') then
+         write(*,'(a,a7)') '  3D. PREVIEW/Ps type: 3D; in colour'
+      end if
+
+      write(*,'(a)')'   Q. Return to the previous menu.'
       write(*,*)
       write(*,*)'------> Choose the item and press ENTER:'
-      read(*,*,err=100) item
+      read (*,'(a)',err=1) cha2
 !
-      if(item.eq.0) then
-         if(type_prv.ne.'contour')  go to 100
+      IF(trim(cha2).eq.'cl' .and. type_prv.eq.'2d-old-')  THEN
  75      write(*,*)'Specify this number:'
          read(*,*,err=75) nclasses
          if(nclasses.lt.2) go to 75
          go to 1
 !
 !__________ give the resolution in either direction
-      else if(item.eq.1) then
+       ELSE IF(trim(cha2).eq.'1') THEN
  15      write(*,*)'Specify this number:'
          read(*,*,err=16) nresol3
          if(nresol3.lt.2) go to 16
@@ -155,7 +170,7 @@ integer item
          go to 15
 !
 !__________ give the resolution in either direction
-      else if(item.eq.2) then
+      ELSE IF(trim(cha2).eq.'2') THEN
  45      write(*,*)'Specify this number:'
          read(*,*,err=46) nresol_prv
          if(nresol_prv.lt.2) go to 46
@@ -164,16 +179,26 @@ integer item
          go to 45
 !
 !__________ give the type of the previewing
-      else if(item.eq.3) then
-         if(type_prv.eq.'contour') then
-            type_prv='3dimens'
-         else
-            type_prv='contour'
+      ELSE IF(trim(cha2).eq.'3D') THEN
+         if(type_prv.eq.'2d-old-') then
+            type_prv='2d-col-'
+         else if(type_prv.eq.'2d-col-') then
+            type_prv='2d-gray'
+         else if(type_prv.eq.'2d-gray') then
+            type_prv='3d-old-'
+         else if(type_prv.eq.'3d-old-') then
+            type_prv='3d-c-2d'
+         else if(type_prv.eq.'3d-c-2d') then
+            type_prv='3d-g-2d-'
+         else if(type_prv.eq.'3d-g-2d') then
+            type_prv='3d-col-'
+         else if(type_prv.eq.'3d-col-') then
+            type_prv='2d-old-'
          end if
          go to 1
 !
 !__________ give low chop value
-      else if(item.eq.4) then
+      ELSE IF(trim(cha2).eq.'4') THEN
  20      write(*,*)'Specify this number:'
          read(*,*,err=23) lochop
          go to 1
@@ -181,7 +206,7 @@ integer item
          go to 20
 !
 !__________ give high chop value
-      else if(item.eq.5) then
+      ELSE IF(trim(cha2).eq.'5') THEN
  25      write(*,*)'Specify this number:'
          read(*,*,err=26) hichop
          go to 1
@@ -189,7 +214,7 @@ integer item
          go to 25
 !
 !__________ give a multiplication factor for the density
-      else if(item.eq.6) then
+      ELSE IF(trim(cha2).eq.'6') THEN
  35      write(*,*)'Specify this number:'
          read(*,*,err=37) multcon
          if(multcon.lt.0.0) go to 37
@@ -197,11 +222,11 @@ integer item
  37      write(*,*)'Error! Try again!'
          go to 35
 !
-      else if(item.eq.7) then
+      ELSE IF(trim(cha2).eq.'Q') THEN
          return
-      else
-         go to 100
-      end if
+      ELSE 
+         go to 100      
+      END IF
 !............. error
  100  write(*,*)'Incorrect item number! Try again!'
       go to 1

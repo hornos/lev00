@@ -45,7 +45,7 @@ tools.o tools_strings.o prep_dos.o dos_add.o \
 mainmenu.o read_vasp_psi2.o plotting.o prep_disp.o \
 dipole.o density.o write_dens.o lev_coulmb.o hould.o \
 invers.o manip_dens.o plot_add.o read_density.o \
-simulate.o read_siesta_pdos.o ttag.o choose_tasks.o
+simulate.o read_siesta_pdos.o ttag.o choose_tasks.o stm_TH.o
 
 INLINE  =
 
@@ -77,4 +77,5 @@ density.o :: param.f90 atoms.f90 menu.f90 box.f90
 lev_coulmb.o :: param.f90 atoms.f90 menu.f90 code.f90
 manip_dens.o :: param.f90 code.f90
 plot_add.o :: param.f90 menu.f90 explore.f90
-choose_tasks :: param.f90 dos_inc.f90 atoms.f90
+choose_tasks.o :: param.f90 dos_inc.f90 atoms.f90
+stm_TH.o :: param.f90 atoms.f90 menu.f90

@@ -19,9 +19,9 @@ real*8,dimension (:), allocatable :: B_min,B_max,B_step,B0_min,B0_max,B_step1
 integer,dimension(:),allocatable :: N_min,N_max, N0_min,N0_max,Nbands0,Nbands1
 integer lenght(99),k_pnt_ref(4),Num_B0,i0,notet,i,iTask,ijk,iFlag,n_energy
 integer n_en,i1,j,i2,k,len,it
-integer NKP,NB,iErr,ngroup,Num_B
+integer NKP,iErr,ngroup,Num_B
 real*8 factor,v,E_step,Dispers2,Up_lim,Up_lim_E,Emin,Emax
-character cha1*1,cha2*2,answer*1,filen(99)*12,cha,line*16,cha13*13
+character cha1*1,cha2*2,filen(99)*12,cha,line*16
 character Title*50,title_pl(99)*7,item*2,chal*2
 character IndivPrev,IndivPstsc,cha16*35,Yes_Job,Smeared
 logical SmearedPrev,Missing,Yes_Fast,Smeared_,k_ref_alloc,Err
@@ -342,6 +342,7 @@ data Title/'                                                  '/
            read(*,*)
         else
            ijk=ijk+1 ; iTask=0 ; ngroup=0 ; Yes_Job='N' ; Yes_Fast=.false.
+           which_task=.false.
         end if
 !
 !............ show all tasks indicating if any were already chosen
@@ -375,11 +376,12 @@ data Title/'                                                  '/
 !
      ELSE IF(iFlag.eq.1 .and. trim(item).eq.'1') THEN
 
-109     write(*,'(a25,i5,a2)')'Choose one PDOS task between 1 and ',Ntask,' :'
+109     write(*,'(a,i5,a2)')'Choose one PDOS task between 1 and ',Ntask,' :'
         write(*,*) '[ It will be added to the current list of tasks]'
         read(*,*,err=109) it
         if(it.lt.1.or.it.gt.Ntask) go to 109
-        which_task(it)=.true.
+        which_task(it)=.true. ; iTask=1
+        call do_nice_list(which_task,Ntask,task_list,len)
 !
 !............ specify maximum allowed energy step E_step
 !
@@ -865,7 +867,7 @@ use kpoints
 use dos
 implicit none
 real*8, parameter :: pi=3.1415927,tiny=0.000001
-character line*80,filen*12,filen1*12,cha*12
+character line*80,filen*12,filen1*12
 real*8 Emin,Emax,s1,s2,en,tot,proj,s_norm,sl_norm,pos_num
 real*8 tot_Ph,proj_Ph,ee,expd,factor
 real*8,dimension(:),allocatable :: e,dos0,dosl

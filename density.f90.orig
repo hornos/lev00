@@ -175,13 +175,7 @@ logical Dip_Done, Quadr_Done,spin
    else if(item.eq.'mD') then
       call simul_box(grid)
    else if(item.eq.'Sf') then
-#ifdef HORNOS
-#ifdef _OPENMP
-      call omp_shift_charge(grid,DIRC,BCELL)
-#else
       call shift_charge(grid,DIRC,BCELL)
-#endif
-#endif
    else if(item.eq.'TH') then
       call stm_TH(grid)
    else if(item.eq.'Q') then
@@ -1566,63 +1560,3 @@ integer ix,iy,iz
       deallocate(GRIDn)
 end subroutine shift_charge
 
-#ifdef HORNOS
-#ifdef _OPENMP
-subroutine omp_shift_charge(grid,DIRC,BCELL)
-!..........................................................................
-! the density is recalculated for a shifted system
-!..........................................................................
-use param
-implicit none
-real*8 GRID(NGX,NGY,NGZ),DIRC(3,3),BCELL(3,3)
-real*8 shift(3),x(3),totdens,denval
-real*8,dimension(:,:,:),allocatable :: GRIDn
-integer ix,iy,iz
-
-!........ save the current density in gridn()
-      allocate(GRIDn(NGX,NGY,NGZ))
-      gridn=grid
-
-!........ ask the shift vector
-
- 1    write(*,*)'Give a new origin of the coordinate system as X,Y,Z:'
-      read(*,*,err=1) Shift(1),Shift(2),Shift(3)
-!
-!..................................................................
-!............... TRANSFORM the CHARGE DENSITY .....................
-!..................................................................
-!
-      write(*,*)'Transforming the density ...'
-! reduction +
-      totdens=0.0
-
-! parallel do loop for iZ
-! slow index: iZ
-! fast index: iX, iY
-!$OMP DO PRIVATE(iX,iY,x,denval) REDUCTION(+:totdens)
-      do iZ=0,NGZ-1
-         do iY=0,NGY-1
-            do iX=0,NGX-1
-               x(1)=iX*DIRC(1,1)/NGX+iY*DIRC(2,1)/NGY+ &
-                    iZ*DIRC(3,1)/NGZ+Shift(1)
-               x(2)=iX*DIRC(1,2)/NGX+iY*DIRC(2,2)/NGY+ &
-                    iZ*DIRC(3,2)/NGZ+Shift(2)
-               x(3)=iX*DIRC(1,3)/NGX+iY*DIRC(2,3)/NGY+ &
-                    iZ*DIRC(3,3)/NGZ+Shift(3)
-               ! returns x
-               call reducn(x,DIRC,BCELL)
-               !
-               call interpolate(x,BCELL,denval,gridn)
-               grid(iX+1,iY+1,iZ+1)=denval
-               totdens=totdens+denval
-            end do
-         end do
-      end do
-!$OMP END DO
-
-      write(*,*) '.....> New total charge = ',totdens/(NPLWV),' <.....'
-      write(*,*)'Done!'
-      deallocate(GRIDn)
-end subroutine omp_shift_charge
-#endif
-#endif

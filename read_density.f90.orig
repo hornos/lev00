@@ -680,12 +680,7 @@ integer LinEnd(100),LinPos(100),NSPEC1,NSPEC2
          write(*,*)'... Grid: check passed!'
          NPLWV=NGX1*NGY1*NGZ1
       end if
-
-#ifdef HORNOS
-      write(unit3,'(/(3i5,x))') NGX1,NGY1,NGZ1
-#else
       write(unit3,*) NGX1,NGY1,NGZ1
-#endif
 !
 !..........reading the charge density
 !     It was written in NCol=5 columns using something like:

@@ -1,10 +1,10 @@
-FFLAGC  = -g -O2 -openmp -DHORNOS 
+FFLAGC  = -g -fpp -O2 -openmp -DHORNOS 
 opt     =
 profile = 
 obj     = lev00
 ildir   =  
 
-CFLAGC  = -g -O2 -openmp -DHORNOS 
+CFLAGC  = -g -fpp -O2 -openmp -DHORNOS 
 
 MKL_PATH = $(INTEL_MKL_HOME)/lib/intel64
 IFC_PATH = $(INTEL_IFORT_HOME)/lib/intel64

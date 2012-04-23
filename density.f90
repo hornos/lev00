@@ -1599,7 +1599,7 @@ integer ix,iy,iz
 ! parallel do loop for iZ
 ! slow index: iZ
 ! fast index: iX, iY
-!$OMP DO PRIVATE(iX,iY,x,denval) REDUCTION(+:totdens)
+!$OMP DO PRIVATE(iX,iY,x,denval)
       do iZ=0,NGZ-1
          do iY=0,NGY-1
             do iX=0,NGX-1
@@ -1614,7 +1614,9 @@ integer ix,iy,iz
                !
                call interpolate(x,BCELL,denval,gridn)
                grid(iX+1,iY+1,iZ+1)=denval
+!$OMP CRITICAL
                totdens=totdens+denval
+!$OMP END CRITICAL
             end do
          end do
       end do

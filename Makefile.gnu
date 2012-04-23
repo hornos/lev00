@@ -1,11 +1,11 @@
-FFLAGC  =  -g -O2 -fopenmp -DHORNOS
+FFLAGC  =  -g -O2 -fpp -fopenmp -DHORNOS
 opt     = 
 profile = 
 obj     = lev00
 ildir   =  
 input   = 
 
-CFLAGC  = -g -O2 -fopenmp -DHORNOS
+CFLAGC  = -g -O2 -fpp -fopenmp -DHORNOS
 
 FCOMPL  = gfortran 
 CCOMPL  = gcc 

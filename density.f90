@@ -1579,7 +1579,7 @@ real*8 shift(3),x(3),totdens,denval
 real*8,dimension(:,:,:),allocatable :: GRIDn
 integer ix,iy,iz
 
-real*8 xytotdens(NGZ),ztotdens
+! real*8 xytotdens(NGZ),ztotdens
 
 !........ save the current density in gridn()
       allocate(GRIDn(NGX,NGY,NGZ))
@@ -1621,17 +1621,17 @@ real*8 xytotdens(NGZ),ztotdens
 !$OMP CRITICAL
                totdens=totdens+denval
 !$OMP END CRITICAL
-               xytotdens(iZ)=xytotdens(iZ)+denval
+!               xytotdens(iZ)=xytotdens(iZ)+denval
             end do
          end do
-!$OMP CRITICAL
-         ztotdens=ztotdens+xytotdens(iZ)
-!$OMP END CRITICAL
+! !$OMP CRITICAL
+!          ztotdens=ztotdens+xytotdens(iZ)
+! !$OMP END CRITICAL
       end do
 !$OMP END PARALLEL DO
 
       write(*,*) '.....> New total charge   = ',totdens/(NPLWV),' <.....'
-      write(*,*) '.....> New total charge Z = ',ztotdens/(NPLWV),' <.....'
+!      write(*,*) '.....> New total charge Z = ',ztotdens/(NPLWV),' <.....'
       write(*,*)'Done!'
       deallocate(GRIDn)
 end subroutine omp_shift_charge

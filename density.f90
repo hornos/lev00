@@ -1597,8 +1597,8 @@ integer ix,iy,iz
       write(*,*)'OMP: Transforming the density ...'
 
       totdens=0.0
-      ztotdens=0.0
-      xytotdens=0.0
+!      ztotdens=0.0
+!      xytotdens=0.0
 
 ! parallel do loop for iZ
 ! slow index: iZ
